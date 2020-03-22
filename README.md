@@ -13,4 +13,4 @@ TODO
 
 # License
 
-[MIT](MIT)
+[MIT](LICENSE)
