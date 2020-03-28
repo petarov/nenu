@@ -11,7 +11,7 @@ import (
 
 type YML struct {
 	Site struct {
-		Title       string `yaml:"title,omitempty"`
+		Title       string `yaml:"title"`
 		Description string `yaml:"description"`
 		Url         string `yaml:"url"`
 	}

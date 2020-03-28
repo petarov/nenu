@@ -1,7 +1,7 @@
 nenu
 ===================
 
-A super tiny static blog generator.
+A tiny static blog builder.
 
 # Installation
 
