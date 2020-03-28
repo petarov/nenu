@@ -11,4 +11,4 @@ content:
 footer:
     copyright:
     twitter: 
-    show_builder: yes
+    show_builder: true
