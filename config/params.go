@@ -11,4 +11,6 @@ var (
 	OutputPath string
 	// TempPath temporary path used during content generation
 	TempPath string
+	// YMLConfig configuration YAML file
+	YMLConfig *YML
 )

@@ -14,6 +14,8 @@ import (
 var (
 	heart    = "\u2764"
 	redColor = color.New(color.FgRed)
+	cyan     = color.New(color.FgCyan).SprintFunc()
+	red      = color.New(color.FgRed).SprintFunc()
 )
 
 func init() {
@@ -40,8 +42,6 @@ func verifyPath(path string, what string, mustExist bool) {
 }
 
 func main() {
-	cyan := color.New(color.FgCyan).SprintFunc()
-	red := color.New(color.FgRed).SprintFunc()
 	fmt.Printf("%s %s (%s) %s v%s - Tiny Static Blog Builder\n", red(heart), config.AppNameEN, cyan(config.AppNameBG),
 		red(heart), config.VERSION)
 
@@ -57,8 +57,9 @@ func main() {
 		fmt.Printf("Failed loading configuration! %v\n", red(err))
 		os.Exit(1)
 	}
+	config.YMLConfig = yml
 
-	if err = engine.Spew(yml); err != nil {
+	if err = engine.Spew(); err != nil {
 		fmt.Printf("Failed parsing contents! %v\n", red(err))
 		os.Exit(1)
 	}
