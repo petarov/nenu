@@ -11,23 +11,31 @@ import (
 	"github.com/petarov/nenu/engine"
 )
 
-const heart = "\u2764"
+var (
+	heart    = "\u2764"
+	redColor = color.New(color.FgRed)
+)
 
-var redColor = color.New(color.FgRed)
-var templatesPath = flag.String("t", "web/blazer", "Path to HTML template to use")
-var configPath = flag.String("c", "config.yml", "Path to YAML configuration file")
-var contentPath = flag.String("b", "", "Path to blog contents. A directory that contains markdown (.md) files")
+func init() {
+	flag.StringVar(&config.ConfigPath, "c", "config.yml", "Path to YAML configuration file")
+	flag.StringVar(&config.TemplatePath, "t", "web/blazer", "Path to HTML template to use")
+	flag.StringVar(&config.ArticlesPath, "b", "", "Path to blog contents. A directory that contains markdown (.md) files")
+	flag.StringVar(&config.OutputPath, "o", "", "Path to where to write the generated HTML website files")
+	flag.StringVar(&config.TempPath, "tmp", os.TempDir(), "Temporary path used during content generation")
+}
 
-func verifyPath(path string, what string) {
+func verifyPath(path string, what string, mustExist bool) {
 	if len(path) < 1 {
 		redColor.Println(what + " path not specified")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		redColor.Println(what + " path not found")
-		flag.PrintDefaults()
-		os.Exit(1)
+	if mustExist {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			redColor.Println(what + " path not found")
+			flag.PrintDefaults()
+			os.Exit(1)
+		}
 	}
 }
 
@@ -39,21 +47,21 @@ func main() {
 
 	flag.Parse()
 
-	verifyPath(*templatesPath, "Templates")
-	verifyPath(*configPath, "Config")
-	verifyPath(*contentPath, "Blog contents")
+	verifyPath(config.ConfigPath, "Templates", true)
+	verifyPath(config.TemplatePath, "Config", true)
+	verifyPath(config.ArticlesPath, "Blog articles", true)
+	verifyPath(config.OutputPath, "Output path", false)
 
-	yml, err := config.ParseYMLConfig(*configPath)
+	yml, err := config.ParseYMLConfig(config.ConfigPath)
 	if err != nil {
 		fmt.Printf("Failed loading configuration! %v\n", red(err))
 		os.Exit(1)
 	}
 
-	_, err = engine.ContentsLoader(*contentPath, yml)
-	if err != nil {
+	if err = engine.Spew(yml); err != nil {
 		fmt.Printf("Failed parsing contents! %v\n", red(err))
 		os.Exit(1)
 	}
 
-	//fmt.Printf("%v", contents)
+	fmt.Printf("Web site contents written to %s\n", cyan(config.OutputPath))
 }
