@@ -5,8 +5,8 @@ var (
 	ConfigPath string
 	// TemplatePath path to web template to use for the blog
 	TemplatePath string
-	// ArticlesPath path to markdown (.md) articles
-	ArticlesPath string
+	// PostsPath path to markdown (.md) posts
+	PostsPath string
 	// OutputPath path to where the site contents will be written
 	OutputPath string
 	// TempPath temporary path used during content generation

@@ -9,13 +9,12 @@ import (
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/parser"
-
 	"github.com/petarov/nenu/config"
 )
 
 const layout = "2006-01-02 15:04:05"
 
-type article struct {
+type post struct {
 	filename string
 	date     time.Time
 	title    string
@@ -30,45 +29,45 @@ func writeArchives() {
 	// TODO
 }
 
-func writeArticle(art *article, html []byte) {
+func writePost(art *post, html []byte) {
 	// TODO
 }
 
-func writeArticles() ([]*article, error) {
-	path := config.ArticlesPath
+func writePosts() ([]*post, error) {
+	path := config.PostsPath
 	extensions := parser.CommonExtensions | parser.AutoHeadingIDs
 
-	fmt.Printf("| Indexing contents from %s...\n", path)
+	fmt.Printf("| Indexing posts from %s...\n", path)
 
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 
-	articles := make([]*article, 0, len(files))
+	posts := make([]*post, 0, len(files))
 
 	for _, file := range files {
 		ext := filepath.Ext(file.Name())
 		if !file.IsDir() && (ext == ".md" || ext == ".markdown") {
 			fmt.Println("|--> ", file.Name())
 
-			art := new(article)
+			art := new(post)
 			art.filename = file.Name()
 			art.date, err = time.Parse(layout, art.filename[:10]+" 12:00:00")
 			if err != nil {
 				return nil, err
 			}
-			articles = append(articles, art)
+			posts = append(posts, art)
 		}
 	}
 
-	fmt.Println("| Generating contents...")
+	fmt.Println("| Generating posts...")
 
-	sort.Slice(articles, func(a, b int) bool {
-		return articles[a].date.After(articles[b].date)
+	sort.Slice(posts, func(a, b int) bool {
+		return posts[a].date.After(posts[b].date)
 	})
 
-	for _, art := range articles {
+	for _, art := range posts {
 		fmt.Println("|--> ", art.filename)
 
 		md, err := ioutil.ReadFile(filepath.Join(path, art.filename))
@@ -79,14 +78,14 @@ func writeArticles() ([]*article, error) {
 		parser := parser.NewWithExtensions(extensions)
 		data := markdown.ToHTML(md, parser, nil)
 
-		writeArticle(art, data)
+		writePost(art, data)
 	}
 
-	return articles, nil
+	return posts, nil
 }
 
 func Spew() (err error) {
-	_, err = writeArticles()
+	_, err = writePosts()
 	if err != nil {
 		return err
 	}
