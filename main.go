@@ -8,6 +8,7 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/petarov/nenu/config"
+	"github.com/petarov/nenu/engine"
 )
 
 const heart = "\u2764"
@@ -48,5 +49,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("CFG: %v\n", yml)
+	_, err = engine.ContentsLoader(*contentPath, yml)
+	if err != nil {
+		fmt.Printf("Failed parsing contents! %v\n", red(err))
+		os.Exit(1)
+	}
+
+	//fmt.Printf("%v", contents)
 }

@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/fatih/color v1.9.0
 	github.com/goccy/go-yaml v1.4.3
+	github.com/gomarkdown/markdown v0.0.0-20200316172748-fd1f3374857d
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	golang.org/x/sys v0.0.0-20200327173247-9dae0f8f5775 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
