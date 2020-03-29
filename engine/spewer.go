@@ -1,10 +1,15 @@
 package engine
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gomarkdown/markdown"
@@ -12,31 +17,78 @@ import (
 	"github.com/petarov/nenu/config"
 )
 
-const layout = "2006-01-02 15:04:05"
+var (
+	layout     = "2006-01-02 15:04:05"
+	extensions = parser.CommonExtensions | parser.AutoHeadingIDs
+)
 
 type post struct {
 	filename string
 	date     time.Time
 	title    string
 	subtitle string
+	publish  bool
 }
 
-func writeHeader() {
+func writeArchives(dest *os.File) {
 	// TODO
 }
 
-func writeArchives() {
-	// TODO
+func writePost(dest *os.File, post *post, data []byte) (err error) {
+	lines := make([]string, 0)
+	parsing := false
+
+	scanner := bufio.NewScanner(strings.NewReader(string(data)))
+	for scanner.Scan() {
+		line := scanner.Text()
+		switch {
+		case strings.HasPrefix(line, "---"):
+			parsing = !parsing
+		case strings.HasPrefix(line, "title:"):
+			post.title = strings.TrimSpace(line[7:])
+			if len(post.title) == 0 {
+				return errors.New("post title cannot be empty")
+			}
+		case strings.HasPrefix(line, "subtitle:"):
+			post.subtitle = strings.TrimSpace(line[10:])
+		case strings.HasPrefix(line, "date:"):
+			post.date, err = time.Parse(time.RFC3339, line[6:])
+			if err != nil {
+				return
+			}
+		case strings.HasPrefix(line, "publish:"):
+			post.publish, err = strconv.ParseBool(line[9:])
+			if err != nil {
+				return
+			}
+		default:
+			if !parsing {
+				lines = append(lines, scanner.Text())
+			}
+		}
+	}
+
+	if post.publish {
+		parser := parser.NewWithExtensions(extensions)
+		md := markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil)
+
+		fmt.Println("MD---", len(md))
+		// TODO
+		// f, err := os.Create("/tmp/dat2")
+		// if err != nil {
+		// 	return
+		// }
+
+		// defer f.Close()
+	} else {
+		fmt.Printf("| Skipped %s (publish = false)\n", post.filename)
+	}
+
+	return
 }
 
-func writePost(art *post, html []byte) {
-	// TODO
-}
-
-func writePosts() ([]*post, error) {
+func writePosts(dest *os.File) ([]*post, error) {
 	path := config.PostsPath
-	extensions := parser.CommonExtensions | parser.AutoHeadingIDs
-
 	fmt.Printf("| Indexing posts from %s...\n", path)
 
 	files, err := ioutil.ReadDir(path)
@@ -51,41 +103,49 @@ func writePosts() ([]*post, error) {
 		if !file.IsDir() && (ext == ".md" || ext == ".markdown") {
 			fmt.Println("|--> ", file.Name())
 
-			art := new(post)
-			art.filename = file.Name()
-			art.date, err = time.Parse(layout, art.filename[:10]+" 12:00:00")
+			post := new(post)
+			post.filename = file.Name()
+			post.title = strings.ReplaceAll(post.filename[11:strings.LastIndex(post.filename, ".")], "-", " ")
+			post.date, err = time.Parse(layout, post.filename[:10]+" 00:00:00")
+			post.publish = true
 			if err != nil {
 				return nil, err
 			}
-			posts = append(posts, art)
+			posts = append(posts, post)
 		}
 	}
 
 	fmt.Println("| Generating posts...")
 
-	sort.Slice(posts, func(a, b int) bool {
-		return posts[a].date.After(posts[b].date)
-	})
+	for _, post := range posts {
+		fmt.Println("|--> ", post.filename)
 
-	for _, art := range posts {
-		fmt.Println("|--> ", art.filename)
-
-		md, err := ioutil.ReadFile(filepath.Join(path, art.filename))
+		data, err := ioutil.ReadFile(filepath.Join(path, post.filename))
 		if err != nil {
 			return nil, err
 		}
 
-		parser := parser.NewWithExtensions(extensions)
-		data := markdown.ToHTML(md, parser, nil)
-
-		writePost(art, data)
+		if err = writePost(dest, post, data); err != nil {
+			return nil, err
+		}
 	}
+
+	sort.Slice(posts, func(a, b int) bool {
+		return posts[a].date.After(posts[b].date)
+	})
 
 	return posts, nil
 }
 
+// Spew generates website
 func Spew() (err error) {
-	_, err = writePosts()
+	tempDir, err := ioutil.TempFile(config.TempPath, "nenu-gen-")
+	if err != nil {
+		return
+	}
+	defer os.Remove(tempDir.Name())
+
+	_, err = writePosts(tempDir)
 	if err != nil {
 		return err
 	}
