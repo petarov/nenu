@@ -1,0 +1,14 @@
+  <h1>{{.Post.Title}}</h1>
+  <cite>{{.Post.Subtitle}}</cite>
+  <p>
+    <a href="#">latest</a> | <a href="#">archive</a> | <a id="cuk" href="#">light mode</a>
+  </p>
+  <h2>{{.Post.Title}}</h2>
+  <code>{{.Post.date}}</code>
+  <br/>
+  {{.Post.Content}}
+  <br/>
+  <p>
+    <a href="{{.Post.Prev.Permalink}}">{{.Post.Prev.Title}}</a>
+  </p>
+  
