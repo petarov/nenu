@@ -15,6 +15,7 @@ var (
 	extensions = parser.CommonExtensions | parser.AutoHeadingIDs
 )
 
+// Templates website html templates
 type Templates struct {
 	Header *template.Template
 	Post   *template.Template
@@ -29,10 +30,6 @@ func loadTemplates() *Templates {
 	return templates
 }
 
-func writeArchives(dest *os.File) {
-	// TODO
-}
-
 // Spew generates website
 func Spew() (err error) {
 	tempDir, err := ioutil.TempFile(config.TempPath, "nenu-gen-")
@@ -43,7 +40,7 @@ func Spew() (err error) {
 
 	templates := loadTemplates()
 
-	_, err = WritePosts(tempDir, templates)
+	_, err = SpewPosts(tempDir, templates)
 	if err != nil {
 		return err
 	}

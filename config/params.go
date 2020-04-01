@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 var (
 	// ConfigPath config.yml file path
 	ConfigPath string
@@ -13,4 +15,6 @@ var (
 	TempPath string
 	// YMLConfig configuration YAML file
 	YMLConfig *YML
+	// TimeZoneLocation inited from the YMLConfig
+	TimeZoneLocation *time.Location
 )

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/fatih/color"
 
@@ -58,6 +59,12 @@ func main() {
 		os.Exit(1)
 	}
 	config.YMLConfig = yml
+
+	config.TimeZoneLocation, err = time.LoadLocation(config.YMLConfig.Content.Timezone)
+	if err != nil {
+		fmt.Printf("Failed loading time zone! %s\n", red(config.YMLConfig.Content.Timezone))
+		os.Exit(1)
+	}
 
 	if err = engine.Spew(); err != nil {
 		fmt.Printf("Failed parsing contents! %v\n", red(err))

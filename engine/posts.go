@@ -18,28 +18,40 @@ import (
 	"github.com/petarov/nenu/config"
 )
 
-type PostPageData struct {
+type postPageData struct {
 	*config.YML
 	Post post
 }
 
-type post struct {
-	filename  string
-	filepath  string
-	date      time.Time
-	publish   bool
+// PostMeta post meta data used for indexing
+type PostMeta struct {
 	Title     string
-	Subtitle  string
-	Content   template.HTML
+	Date      string
 	Permalink string
-	Summary   string
-	ImageURL  string
-	Prev      *post
+}
+
+type post struct {
+	filename     string
+	filenameHTML string
+	filepath     string
+	date         time.Time
+	Meta         *PostMeta
+	// Title    string
+	// Date     string
+	Subtitle string
+	Content  template.HTML
+	// Permalink string
+	Summary  string
+	ImageURL string
+	Prev     *post
 }
 
 func writePost(dest *os.File, post *post, data []byte, templates *Templates) (err error) {
-	lines := make([]string, 0)
-	parsing := false
+	var (
+		lines   = make([]string, 0)
+		parsing = false
+		publish = true
+	)
 
 	scanner := bufio.NewScanner(strings.NewReader(string(data)))
 	for scanner.Scan() {
@@ -48,8 +60,8 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 		case strings.HasPrefix(line, "---"):
 			parsing = !parsing
 		case strings.HasPrefix(line, "title:"):
-			post.Title = strings.TrimSpace(line[7:])
-			if len(post.Title) == 0 {
+			post.Meta.Title = strings.TrimSpace(line[7:])
+			if len(post.Meta.Title) == 0 {
 				return errors.New("post title cannot be empty")
 			}
 		case strings.HasPrefix(line, "subtitle:"):
@@ -60,7 +72,7 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 				return
 			}
 		case strings.HasPrefix(line, "publish:"):
-			post.publish, err = strconv.ParseBool(line[9:])
+			publish, err = strconv.ParseBool(line[9:])
 			if err != nil {
 				return
 			}
@@ -71,9 +83,10 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 		}
 	}
 
-	if post.publish {
+	if publish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
+		post.Meta.Date = post.date.In(config.TimeZoneLocation).Local().Format("Mon, 02 Jan 2006")
 
 		dirpath := filepath.Join(config.TempPath, post.filepath)
 		if err = os.MkdirAll(dirpath, 0755); err != nil {
@@ -81,13 +94,13 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 		}
 
 		var f *os.File
-		f, err = os.Create(filepath.Join(dirpath, post.filename[11:]))
+		f, err = os.Create(filepath.Join(dirpath, post.filenameHTML))
 		if err != nil {
 			return
 		}
 		defer f.Close()
 
-		pd := &PostPageData{config.YMLConfig, *post}
+		pd := &postPageData{config.YMLConfig, *post}
 
 		// header
 		if err = templates.Header.Execute(f, pd); err != nil {
@@ -108,7 +121,8 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 	return
 }
 
-func WritePosts(dest *os.File, templates *Templates) ([]*post, error) {
+// SpewPosts generate all website
+func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 	path := config.PostsPath
 	fmt.Printf("| Indexing posts from %s...\n", path)
 
@@ -124,27 +138,36 @@ func WritePosts(dest *os.File, templates *Templates) ([]*post, error) {
 		if !file.IsDir() && (ext == ".md" || ext == ".markdown") {
 			fmt.Println("|--> ", file.Name())
 
+			fileNoExt := strings.ReplaceAll(file.Name(), filepath.Ext(file.Name()), "")
+
 			post := new(post)
 			post.filename = file.Name()
-			post.Title = strings.ReplaceAll(post.filename[11:strings.LastIndex(post.filename, ".")], "-", " ")
+			post.filenameHTML = fmt.Sprintf("%s.html", fileNoExt)
 			dirs := strings.Split(post.filename[:10], "-")
 			if len(dirs) != 3 {
 				return nil, fmt.Errorf("%s unexpected date prefix. YYYY-mm-dd required", post.filename)
 			}
 			post.filepath = filepath.Join(dirs[0], dirs[1], dirs[2])
 			post.date, err = time.Parse(layout, post.filename[:10]+" 00:00:00")
-			post.publish = true
 			if err != nil {
 				return nil, err
 			}
+
+			post.Meta = new(PostMeta)
+			post.Meta.Title = strings.ReplaceAll(fileNoExt, "-", " ")
+
 			posts = append(posts, post)
 		}
 	}
 
 	fmt.Println("| Generating posts...")
 
+	index := make([]*PostMeta, 0, len(posts))
+
 	for _, post := range posts {
 		fmt.Println("|--> ", post.filename)
+
+		index = append(index, post.Meta)
 
 		data, err := ioutil.ReadFile(filepath.Join(path, post.filename))
 		if err != nil {
@@ -160,5 +183,5 @@ func WritePosts(dest *os.File, templates *Templates) ([]*post, error) {
 		return posts[a].date.After(posts[b].date)
 	})
 
-	return posts, nil
+	return index, nil
 }
