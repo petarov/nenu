@@ -13,7 +13,7 @@ type YML struct {
 	Site struct {
 		Title       string `yaml:"title"`
 		Description string `yaml:"description"`
-		Url         string `yaml:"url"`
+		URL         string `yaml:"url"`
 	}
 	Content struct {
 		FontLink string `yaml:"font_link"`
@@ -31,7 +31,7 @@ func validate(yml *YML) (err error) {
 	if len(yml.Site.Title) == 0 {
 		return errors.New("site.title cannot be empty")
 	}
-	if _, err = url.ParseRequestURI(yml.Site.Url); err != nil {
+	if _, err = url.ParseRequestURI(yml.Site.URL); err != nil {
 		return err
 	}
 	if len(yml.Content.Timezone) == 0 {
@@ -43,6 +43,7 @@ func validate(yml *YML) (err error) {
 	return nil
 }
 
+// ParseYMLConfig parses config.yml
 func ParseYMLConfig(filepath string) (*YML, error) {
 	fmt.Printf("Parsing config file %s\n", filepath)
 

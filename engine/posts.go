@@ -27,13 +27,14 @@ type postPageData struct {
 type PostMeta struct {
 	Title     string
 	Date      string
-	Permalink string
+	Permalink template.URL
 }
 
 type post struct {
 	filename     string
 	filenameHTML string
 	filepath     string
+	publish      bool
 	date         time.Time
 	Meta         *PostMeta
 	// Title    string
@@ -48,10 +49,13 @@ type post struct {
 
 func writePost(dest *os.File, post *post, data []byte, templates *Templates) (err error) {
 	var (
-		lines   = make([]string, 0)
-		parsing = false
-		publish = true
+		lines      = make([]string, 0)
+		parsing    = false
+		dateLayout = "Mon, 02 Jan 2006"
 	)
+
+	// published unless specified otherwise
+	post.publish = true
 
 	scanner := bufio.NewScanner(strings.NewReader(string(data)))
 	for scanner.Scan() {
@@ -66,13 +70,13 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 			}
 		case strings.HasPrefix(line, "subtitle:"):
 			post.Subtitle = strings.TrimSpace(line[10:])
-		case strings.HasPrefix(line, "date:"):
-			post.date, err = time.Parse(time.RFC3339, line[6:])
-			if err != nil {
-				return
-			}
+		// case strings.HasPrefix(line, "date:"):
+		// 	post.date, err = time.Parse(time.RFC3339, line[6:])
+		// 	if err != nil {
+		// 		return
+		// 	}
 		case strings.HasPrefix(line, "publish:"):
-			publish, err = strconv.ParseBool(line[9:])
+			post.publish, err = strconv.ParseBool(line[9:])
 			if err != nil {
 				return
 			}
@@ -83,10 +87,10 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 		}
 	}
 
-	if publish {
+	if post.publish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
-		post.Meta.Date = post.date.In(config.TimeZoneLocation).Local().Format("Mon, 02 Jan 2006")
+		post.Meta.Date = post.date.In(config.TimeZoneLocation).Local().Format(dateLayout)
 
 		dirpath := filepath.Join(config.TempPath, post.filepath)
 		if err = os.MkdirAll(dirpath, 0755); err != nil {
@@ -138,11 +142,11 @@ func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 		if !file.IsDir() && (ext == ".md" || ext == ".markdown") {
 			fmt.Println("|--> ", file.Name())
 
-			fileNoExt := strings.ReplaceAll(file.Name(), filepath.Ext(file.Name()), "")
+			filenameClean := strings.ReplaceAll(file.Name(), filepath.Ext(file.Name()), "")[11:]
 
 			post := new(post)
 			post.filename = file.Name()
-			post.filenameHTML = fmt.Sprintf("%s.html", fileNoExt)
+			post.filenameHTML = fmt.Sprintf("%s.html", filenameClean)
 			dirs := strings.Split(post.filename[:10], "-")
 			if len(dirs) != 3 {
 				return nil, fmt.Errorf("%s unexpected date prefix. YYYY-mm-dd required", post.filename)
@@ -154,7 +158,8 @@ func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 			}
 
 			post.Meta = new(PostMeta)
-			post.Meta.Title = strings.ReplaceAll(fileNoExt, "-", " ")
+			post.Meta.Permalink = template.URL(fmt.Sprintf("%s/%s/%s", config.YMLConfig.Site.URL, post.filepath, post.filenameHTML))
+			post.Meta.Title = strings.ReplaceAll(filenameClean, "-", " ")
 
 			posts = append(posts, post)
 		}
@@ -162,12 +167,21 @@ func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 
 	fmt.Println("| Generating posts...")
 
-	index := make([]*PostMeta, 0, len(posts))
+	//  sort by ascending date
+	sort.Slice(posts, func(a, b int) bool {
+		return posts[a].date.Before(posts[b].date)
+	})
+
+	var (
+		metaPosts = make([]*PostMeta, 0, len(posts))
+		prev      *post
+	)
 
 	for _, post := range posts {
 		fmt.Println("|--> ", post.filename)
 
-		index = append(index, post.Meta)
+		metaPosts = append(metaPosts, post.Meta)
+		post.Prev = prev
 
 		data, err := ioutil.ReadFile(filepath.Join(path, post.filename))
 		if err != nil {
@@ -177,11 +191,17 @@ func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 		if err = writePost(dest, post, data, templates); err != nil {
 			return nil, err
 		}
+
+		if post.publish {
+			prev = post
+		}
 	}
 
-	sort.Slice(posts, func(a, b int) bool {
-		return posts[a].date.After(posts[b].date)
-	})
+	// sort by descending date
+	for i := len(metaPosts)/2 - 1; i >= 0; i-- {
+		tmp := len(metaPosts) - 1 - i
+		metaPosts[i], metaPosts[tmp] = metaPosts[tmp], metaPosts[i]
+	}
 
-	return index, nil
+	return metaPosts, nil
 }

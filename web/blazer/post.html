@@ -9,6 +9,8 @@
   {{.Post.Content}}
   <br/>
   <p>
-    <a href="{{.Post.Prev.Permalink}}">{{.Post.Prev.Title}}</a>
+    {{if .Post.Prev}}
+    <a href="{{.Post.Prev.Meta.Permalink}}">{{.Post.Prev.Meta.Title}}</a>
+    {{end}}
   </p>
   
