@@ -47,11 +47,24 @@ type post struct {
 	Prev     *post
 }
 
+var (
+	markdownExt    = []string{".md", ".markdown", ".mkd", ".mdown", ".mdwn"}
+	htmlDateLayout = "Mon, 02 Jan 2006"
+)
+
+func isExtOk(needle string) bool {
+	for _, ext := range markdownExt {
+		if ext == needle {
+			return true
+		}
+	}
+	return false
+}
+
 func writePost(dest *os.File, post *post, data []byte, templates *Templates) (err error) {
 	var (
-		lines      = make([]string, 0)
-		parsing    = false
-		dateLayout = "Mon, 02 Jan 2006"
+		lines   = make([]string, 0)
+		parsing = false
 	)
 
 	// published unless specified otherwise
@@ -90,7 +103,7 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 	if post.publish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
-		post.Meta.Date = post.date.In(config.TimeZoneLocation).Local().Format(dateLayout)
+		post.Meta.Date = post.date.In(config.TimeZoneLocation).Local().Format(htmlDateLayout)
 
 		dirpath := filepath.Join(config.TempPath, post.filepath)
 		if err = os.MkdirAll(dirpath, 0755); err != nil {
@@ -139,10 +152,10 @@ func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 
 	for _, file := range files {
 		ext := filepath.Ext(file.Name())
-		if !file.IsDir() && (ext == ".md" || ext == ".markdown") {
-			fmt.Println("|--> ", file.Name())
 
-			filenameClean := strings.ReplaceAll(file.Name(), filepath.Ext(file.Name()), "")[11:]
+		if !file.IsDir() && isExtOk(ext) {
+			fmt.Println("|--> ", file.Name())
+			filenameClean := strings.ReplaceAll(file.Name(), ext, "")[11:]
 
 			post := new(post)
 			post.filename = file.Name()
