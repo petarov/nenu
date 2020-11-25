@@ -1,3 +1,4 @@
 config.yml
 *.txt
 _site
+temp

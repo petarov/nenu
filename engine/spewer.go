@@ -17,16 +17,18 @@ var (
 
 // Templates website html templates
 type Templates struct {
-	Header *template.Template
-	Post   *template.Template
-	Footer *template.Template
+	Header  *template.Template
+	Footer  *template.Template
+	Post    *template.Template
+	Archive *template.Template
 }
 
 func loadTemplates() *Templates {
 	templates := new(Templates)
 	templates.Header = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "header.html")))
-	templates.Post = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "post.html")))
 	templates.Footer = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "footer.html")))
+	templates.Post = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "post.html")))
+	templates.Archive = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "archive.html")))
 	return templates
 }
 
@@ -40,7 +42,12 @@ func Spew() (err error) {
 
 	templates := loadTemplates()
 
-	_, err = SpewPosts(tempDir, templates)
+	meta, err := SpewPosts(tempDir, templates)
+	if err != nil {
+		return err
+	}
+
+	err = SpewArchive(meta, tempDir, templates)
 	if err != nil {
 		return err
 	}

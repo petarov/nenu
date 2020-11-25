@@ -138,7 +138,7 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 	return
 }
 
-// SpewPosts generate all website
+// SpewPosts generate site posts
 func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 	path := config.PostsPath
 	fmt.Printf("| Indexing posts from %s...\n", path)
