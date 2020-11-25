@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gomarkdown/markdown/parser"
 	"github.com/otiai10/copy"
@@ -13,8 +14,9 @@ import (
 )
 
 var (
-	layout     = "2006-01-02 15:04:05"
-	extensions = parser.CommonExtensions | parser.AutoHeadingIDs
+	layout        = "2006-01-02 15:04:05"
+	extensions    = parser.CommonExtensions | parser.AutoHeadingIDs
+	templateNames = []string{"header.html", "footer.html", "post.html", "archive.html"}
 )
 
 // Templates website html templates
@@ -50,22 +52,40 @@ func Spew() (err error) {
 
 	templates := loadTemplates()
 
+	// generate posts
 	meta, err := SpewPosts(templates)
 	if err != nil {
 		return err
 	}
 
+	// generate archive
 	err = SpewArchive(meta, templates)
 	if err != nil {
 		return err
 	}
 
+	// copy all generated content to the specified destination
 	config.OutputPath, err = filepath.Abs(config.OutputPath)
 	if err != nil {
 		return err
 	}
 
 	err = copy.Copy(config.TempPath, config.OutputPath)
+	if err != nil {
+		return err
+	}
+
+	// copy web template resources
+	err = copy.Copy(config.TemplatePath, config.OutputPath, copy.Options{
+		Skip: func(src string) (bool, error) {
+			for _, v := range templateNames {
+				if strings.HasSuffix(src, v) {
+					return true, nil
+				}
+			}
+			return false, nil
+		},
+	})
 	if err != nil {
 		return err
 	}
