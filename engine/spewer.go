@@ -1,12 +1,14 @@
 package engine
 
 import (
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/gomarkdown/markdown/parser"
+	"github.com/otiai10/copy"
 	"github.com/petarov/nenu/config"
 )
 
@@ -34,20 +36,36 @@ func loadTemplates() *Templates {
 
 // Spew generates website
 func Spew() (err error) {
-	tempDir, err := ioutil.TempFile(config.TempPath, "nenu-gen-")
+	tempDir, err := ioutil.TempDir(config.TempPath, "nenu-gen-")
 	if err != nil {
 		return
 	}
-	defer os.Remove(tempDir.Name())
+	defer os.RemoveAll(tempDir)
+
+	config.TempPath, err = filepath.Abs(tempDir)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("| Using temp dir: %s\n", config.TempPath)
 
 	templates := loadTemplates()
 
-	meta, err := SpewPosts(tempDir, templates)
+	meta, err := SpewPosts(templates)
 	if err != nil {
 		return err
 	}
 
-	err = SpewArchive(meta, tempDir, templates)
+	err = SpewArchive(meta, templates)
+	if err != nil {
+		return err
+	}
+
+	config.OutputPath, err = filepath.Abs(config.OutputPath)
+	if err != nil {
+		return err
+	}
+
+	err = copy.Copy(config.TempPath, config.OutputPath)
 	if err != nil {
 		return err
 	}

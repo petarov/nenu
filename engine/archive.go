@@ -16,9 +16,8 @@ type archivePageData struct {
 }
 
 // SpewArchive generate site posts archive
-func SpewArchive(meta []*PostMeta, dest *os.File, templates *Templates) error {
-	path := config.PostsPath
-	fmt.Printf("| Generating archive %s...\n", path)
+func SpewArchive(meta []*PostMeta, templates *Templates) error {
+	fmt.Print("| Generating archive ...\n")
 
 	var f *os.File
 	f, err := os.Create(filepath.Join(config.TempPath, "archive.html"))
@@ -27,12 +26,12 @@ func SpewArchive(meta []*PostMeta, dest *os.File, templates *Templates) error {
 	}
 	defer f.Close()
 
-	postMetas := make([]PostMeta, 0)
+	metas := make([]PostMeta, 0)
 	for _, v := range meta {
-		postMetas = append(postMetas, *v)
+		metas = append(metas, *v)
 	}
 
-	pd := &archivePageData{config.YMLConfig, postMetas, nil}
+	pd := &archivePageData{config.YMLConfig, metas, nil}
 
 	// header
 	if err = templates.Header.Execute(f, pd); err != nil {

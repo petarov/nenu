@@ -61,7 +61,7 @@ func isExtOk(needle string) bool {
 	return false
 }
 
-func writePost(dest *os.File, post *post, data []byte, templates *Templates) (err error) {
+func writePost(post *post, data []byte, templates *Templates) (err error) {
 	var (
 		lines   = make([]string, 0)
 		parsing = false
@@ -139,7 +139,7 @@ func writePost(dest *os.File, post *post, data []byte, templates *Templates) (er
 }
 
 // SpewPosts generate site posts
-func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
+func SpewPosts(templates *Templates) ([]*PostMeta, error) {
 	path := config.PostsPath
 	fmt.Printf("| Indexing posts from %s...\n", path)
 
@@ -201,7 +201,7 @@ func SpewPosts(dest *os.File, templates *Templates) ([]*PostMeta, error) {
 			return nil, err
 		}
 
-		if err = writePost(dest, post, data, templates); err != nil {
+		if err = writePost(post, data, templates); err != nil {
 			return nil, err
 		}
 
