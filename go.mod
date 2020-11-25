@@ -7,7 +7,7 @@ require (
 	github.com/goccy/go-yaml v1.4.3
 	github.com/gomarkdown/markdown v0.0.0-20200316172748-fd1f3374857d
 	github.com/mattn/go-colorable v0.1.6 // indirect
-	golang.org/x/sys v0.0.0-20200327173247-9dae0f8f5775 // indirect
+	golang.org/x/sys v0.0.0-20201009025420-dfb3f7c4e634 // indirect
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
