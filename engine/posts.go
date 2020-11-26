@@ -15,6 +15,7 @@ import (
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/parser"
+	"github.com/otiai10/copy"
 	"github.com/petarov/nenu/config"
 )
 
@@ -208,6 +209,13 @@ func SpewPosts(templates *Templates) ([]*PostMeta, error) {
 		if post.publish {
 			prev = post
 		}
+	}
+
+	fmt.Println("| Generating index...")
+	index := posts[len(posts)-1]
+	err = copy.Copy(filepath.Join(config.TempPath, index.filepath, index.filenameHTML), filepath.Join(config.TempPath, "index.html"))
+	if err != nil {
+		return nil, err
 	}
 
 	// sort by descending date
