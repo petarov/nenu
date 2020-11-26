@@ -27,8 +27,10 @@ func SpewArchive(meta []*PostMeta, templates *Templates) error {
 	defer f.Close()
 
 	metas := make([]PostMeta, 0)
-	for _, v := range meta {
-		metas = append(metas, *v)
+	for _, p := range meta {
+		if p.Publish {
+			metas = append(metas, *p)
+		}
 	}
 
 	pd := &archivePageData{config.YMLConfig, metas, nil}

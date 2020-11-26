@@ -31,13 +31,13 @@ type PostMeta struct {
 	Date      string
 	ShortDate string
 	Permalink template.URL
+	Publish   bool
 }
 
 type post struct {
 	filename     string
 	filenameHTML string
 	filepath     string
-	publish      bool
 	date         time.Time
 	Meta         *PostMeta
 	Subtitle     string
@@ -68,7 +68,7 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 	)
 
 	// published unless specified otherwise
-	post.publish = true
+	post.Meta.Publish = true
 
 	scanner := bufio.NewScanner(strings.NewReader(string(data)))
 	for scanner.Scan() {
@@ -91,7 +91,7 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 		// 		return
 		// 	}
 		case strings.HasPrefix(line, "publish:"):
-			post.publish, err = strconv.ParseBool(line[9:])
+			post.Meta.Publish, err = strconv.ParseBool(line[9:])
 			if err != nil {
 				return
 			}
@@ -102,7 +102,7 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 		}
 	}
 
-	if post.publish {
+	if post.Meta.Publish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
 
@@ -211,7 +211,7 @@ func SpewPosts(templates *Templates) ([]*PostMeta, error) {
 			return nil, err
 		}
 
-		if post.publish {
+		if post.Meta.Publish {
 			prev = post
 		}
 	}
