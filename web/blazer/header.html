@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{.Site.Title}}</title>
-    <meta content="text/html; charset=utf-8" http-equiv="content-type">
-    <meta content='width=device-width,initial-scale=1' name='viewport'>
-    <meta name="description" content="{{.Site.Description}}"/>
-    <meta property="og:site_name" content="{{.Site.Title}}"/>
-    <meta property="og:type" content="website"/>
     {{if .Post}}
+    <title>{{.Site.Title}} - {{.Post.Meta.Title}}</title>
     <meta property="og:title" content="{{.Post.Meta.Title}}"/>
     <meta property="og:description" content="{{.Post.Summary}}"/>
     <meta property="og:url" content="{{.Post.Meta.Permalink}}"/>
     <meta property="og:image" content="{{.Post.ImageURL}}" />
+    {{else}}
+    <title>{{.Site.Title}}</title>
     {{end}}
+    <meta property="og:site_name" content="{{.Site.Title}}"/>
+    <meta property="og:type" content="website"/>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <meta content='width=device-width,initial-scale=1' name='viewport'>
+    <meta name="description" content="{{.Site.Description}}"/>
     <link href="{{.Content.FontLink }}" rel="stylesheet">
     <link rel="stylesheet" href="styles/sakura-blazer.css" id="theme-css">
     <link rel="stylesheet" href="styles/blazer.css">

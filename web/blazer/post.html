@@ -1,9 +1,10 @@
-  <h1>{{.Post.Meta.Title}}</h1>
-  <cite>{{.Post.Subtitle}}</cite>
+  <h1>{{.Site.Title}}</h1>
   <p>
     <a href="index.html">latest</a> | <a href="archive.html">archive</a> | <a id="cuk" href="#">light mode</a>
   </p>
   <h2>{{.Post.Meta.Title}}</h2>
+  <cite>{{.Post.Subtitle}}</cite>
+  <br>
   <code>{{.Post.Meta.Date}}</code>
   <br/>
   {{.Post.Content}}

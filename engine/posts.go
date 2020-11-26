@@ -40,14 +40,11 @@ type post struct {
 	publish      bool
 	date         time.Time
 	Meta         *PostMeta
-	// Title    string
-	// Date     string
-	Subtitle string
-	Content  template.HTML
-	// Permalink string
-	Summary  string
-	ImageURL string
-	Prev     *post
+	Subtitle     string
+	Summary      string
+	Content      template.HTML
+	ImageURL     string
+	Prev         *post
 }
 
 var (
@@ -86,7 +83,9 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 			}
 		case strings.HasPrefix(line, "subtitle:"):
 			post.Subtitle = strings.TrimSpace(line[10:])
-		// case strings.HasPrefix(line, "date:"):
+		case strings.HasPrefix(line, "summary:"):
+			post.Summary = strings.TrimSpace(line[8:])
+			// case strings.HasPrefix(line, "date:"):
 		// 	post.date, err = time.Parse(time.RFC3339, line[6:])
 		// 	if err != nil {
 		// 		return
