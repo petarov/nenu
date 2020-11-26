@@ -15,6 +15,7 @@ import (
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/parser"
+	"github.com/goodsign/monday"
 	"github.com/otiai10/copy"
 	"github.com/petarov/nenu/config"
 )
@@ -50,7 +51,7 @@ type post struct {
 
 var (
 	markdownExt    = []string{".md", ".markdown", ".mkd", ".mdown", ".mdwn"}
-	htmlDateLayout = "Mon, 02 Jan 2006"
+	htmlDateLayout = "Monday, 02 January 2006"
 )
 
 func isExtOk(needle string) bool {
@@ -104,7 +105,8 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 	if post.publish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
-		post.Meta.Date = post.date.In(config.TimeZoneLocation).Local().Format(htmlDateLayout)
+		post.Meta.Date = monday.Format(post.date.In(config.TimeZoneLocation).Local(), htmlDateLayout,
+			monday.Locale(config.YMLConfig.Content.Locale))
 
 		dirpath := filepath.Join(config.TempPath, post.filepath)
 		if err = os.MkdirAll(dirpath, 0755); err != nil {

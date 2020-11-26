@@ -18,6 +18,7 @@ type YML struct {
 	Content struct {
 		FontLink string `yaml:"font_link"`
 		Timezone string `yaml:"timezone"`
+		Locale   string `yaml:"locale"`
 		Rss      bool   `yaml:"rss"`
 	}
 	Footer struct {
