@@ -29,6 +29,7 @@ type postPageData struct {
 type PostMeta struct {
 	Title     string
 	Date      string
+	ShortDate string
 	Permalink template.URL
 }
 
@@ -105,8 +106,11 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 	if post.publish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
-		post.Meta.Date = monday.Format(post.date.In(config.TimeZoneLocation).Local(), htmlDateLayout,
-			monday.Locale(config.YMLConfig.Content.Locale))
+
+		locale := monday.Locale(config.YMLConfig.Content.Locale)
+		post.Meta.Date = monday.Format(post.date.In(config.TimeZoneLocation).Local(), htmlDateLayout, locale)
+		post.Meta.ShortDate = monday.Format(post.date.In(config.TimeZoneLocation).Local(),
+			monday.MediumFormatsByLocale[locale], locale)
 
 		dirpath := filepath.Join(config.TempPath, post.filepath)
 		if err = os.MkdirAll(dirpath, 0755); err != nil {
