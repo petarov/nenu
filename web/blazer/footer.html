@@ -1,6 +1,12 @@
 <footer>
-    <a href="#">rss</a> | <a href="https://twitter.com/{{.Footer.Twitter}}">@{{.Footer.Twitter}}</a> | <a href="">nenu</a>
+    {{if .Footer.Twitter}}
+    <a href="https://twitter.com/{{.Footer.Twitter}}">@{{.Footer.Twitter}}</a> |
+    {{end}}
+    <a href="#">rss</a> |  {{.Footer.CopyrightHTML}}
+    {{if .Footer.ShowBuilder}}
+    | <span class="gen">gen by</span> <a href="https://github.com/petarov/nenu" class="gen">пепи</a>
+    {{end}}
 </footer>
-<script src="js/blazer.js"></script>
+<script defer src="js/blazer.js"></script>
 </body>
 </html>

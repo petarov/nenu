@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/url"
 
@@ -22,9 +23,10 @@ type YML struct {
 		Rss      bool   `yaml:"rss"`
 	}
 	Footer struct {
-		Copyright   string `yaml:"copyright"`
-		Twitter     string `yaml:"twitter"`
-		ShowBuilder bool   `yaml:"show_builder"`
+		Copyright     string `yaml:"copyright"`
+		CopyrightHTML template.HTML
+		Twitter       string `yaml:"twitter"`
+		ShowBuilder   bool   `yaml:"show_builder"`
 	}
 }
 
@@ -63,6 +65,8 @@ func ParseYMLConfig(filepath string) (*YML, error) {
 	if err = validate(&yml); err != nil {
 		return nil, err
 	}
+
+	yml.Footer.CopyrightHTML = template.HTML(yml.Footer.Copyright)
 
 	return &yml, nil
 }
