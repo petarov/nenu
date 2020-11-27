@@ -1,6 +1,6 @@
   <h1>{{.Site.Title}}</h1>
   <p>
-    <a href="index.html">latest</a> | <a href="archive.html">archive</a> | <a id="cuk" href="#">light mode</a>
+    <a href="index.html">{{index .Locales "latest"}}</a> | <a href="archive.html">{{index .Locales "archive"}}</a> | <a id="cuk" href="#" data-lm='{{index .Locales "light_mode"}}' data-dm='{{index .Locales "dark_mode"}}'>{{index .Locales "light_mode"}}</a>
   </p>
   <h2>{{.Post.Meta.Title}}</h2>
   <cite>{{.Post.Subtitle}}</cite>

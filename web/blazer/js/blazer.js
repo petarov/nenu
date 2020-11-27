@@ -12,9 +12,9 @@
   }
   var bumpIt = function(el, mode) {
     if (mode=='blazer') {
-      el.innerText = 'light mode';
+      el.innerText = el.dataset.lm;
     } else {
-      el.innerText = 'dark mode';
+      el.innerText = el.dataset.dm;
     }
     var link = document.getElementById("theme-css");
     link.href = 'styles/sakura-' + mode + '.css';

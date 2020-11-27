@@ -28,6 +28,7 @@ type YML struct {
 		Twitter       string `yaml:"twitter"`
 		ShowBuilder   bool   `yaml:"show_builder"`
 	}
+	Locales map[string]string
 }
 
 func validate(yml *YML) (err error) {
@@ -64,6 +65,15 @@ func ParseYMLConfig(filepath string) (*YML, error) {
 
 	if err = validate(&yml); err != nil {
 		return nil, err
+	}
+
+	yml.Locales = Locales["en_US"]
+
+	if Locales[yml.Content.Locale] != nil {
+		yml.Locales = Locales[yml.Content.Locale]
+	} else {
+		// default
+		yml.Locales = Locales["en_US"]
 	}
 
 	yml.Footer.CopyrightHTML = template.HTML(yml.Footer.Copyright)

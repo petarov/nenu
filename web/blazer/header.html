@@ -7,8 +7,10 @@
     <meta property="og:description" content="{{.Post.Summary}}"/>
     <meta property="og:url" content="{{.Post.Meta.Permalink}}"/>
     <meta property="og:image" content="{{.Post.ImageURL}}" />
+    <meta name="description" content="{{.Post.Summary}}">
     {{else}}
     <title>{{.Site.Title}}</title>
+    <meta name="description" content="{{.Site.Description}}">
     {{end}}
     <meta property="og:site_name" content="{{.Site.Title}}"/>
     <meta property="og:type" content="website"/>

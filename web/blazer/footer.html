@@ -4,7 +4,7 @@
     {{end}}
     <a href="#">rss</a> |  {{.Footer.CopyrightHTML}}
     {{if .Footer.ShowBuilder}}
-    | <span class="gen">gen by</span> <a href="https://github.com/petarov/nenu" class="gen">пепи</a>
+    | <span class="gen">{{index .Locales "gen_by"}}</span> <a href="https://github.com/petarov/nenu" class="gen">пепи</a>
     {{end}}
 </footer>
 <script defer src="js/blazer.js"></script>
