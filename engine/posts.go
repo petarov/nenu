@@ -31,7 +31,7 @@ type PostMeta struct {
 	Date      string
 	ShortDate string
 	Permalink template.URL
-	Publish   bool
+	IsPublish bool
 }
 
 type post struct {
@@ -68,7 +68,7 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 	)
 
 	// published unless specified otherwise
-	post.Meta.Publish = true
+	post.Meta.IsPublish = true
 
 	scanner := bufio.NewScanner(strings.NewReader(string(data)))
 	for scanner.Scan() {
@@ -91,7 +91,7 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 		// 		return
 		// 	}
 		case strings.HasPrefix(line, "publish:"):
-			post.Meta.Publish, err = strconv.ParseBool(line[9:])
+			post.Meta.IsPublish, err = strconv.ParseBool(line[9:])
 			if err != nil {
 				return
 			}
@@ -106,7 +106,7 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 		}
 	}
 
-	if post.Meta.Publish {
+	if post.Meta.IsPublish {
 		parser := parser.NewWithExtensions(extensions)
 		post.Content = template.HTML(markdown.ToHTML([]byte(strings.Join(lines, "")), parser, nil))
 
@@ -215,7 +215,7 @@ func SpewPosts(templates *Templates) ([]*PostMeta, error) {
 			return nil, err
 		}
 
-		if post.Meta.Publish {
+		if post.Meta.IsPublish {
 			prev = post
 		}
 	}

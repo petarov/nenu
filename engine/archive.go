@@ -28,7 +28,7 @@ func SpewArchive(meta []*PostMeta, templates *Templates) error {
 
 	metas := make([]PostMeta, 0)
 	for _, p := range meta {
-		if p.Publish {
+		if p.IsPublish {
 			metas = append(metas, *p)
 		}
 	}
