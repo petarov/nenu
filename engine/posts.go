@@ -97,7 +97,11 @@ func writePost(post *post, data []byte, templates *Templates) (err error) {
 			}
 		default:
 			if !parsing {
-				lines = append(lines, scanner.Text())
+				if len(line) > 0 {
+					lines = append(lines, line)
+				} else {
+					lines = append(lines, "\n")
+				}
 			}
 		}
 	}

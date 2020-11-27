@@ -1,7 +1,7 @@
 site:
     title: ""
     description: ""
-    url: 
+    url: https://my.site.tld
 
 content:
     font_link: https://fonts.googleapis.com/css?family=Oxygen:300&display=swap
