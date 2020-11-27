@@ -1,2 +1,4 @@
 web/blazer/styles/sakura-*.css linguist-vendored
 test-data/* linguist-vendored
+.vscode/* linguist-vendored
+
