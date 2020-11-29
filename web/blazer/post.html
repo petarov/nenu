@@ -2,15 +2,15 @@
   <p>
     <a href="index.html">{{index .Locales "latest"}}</a> | <a href="archive.html">{{index .Locales "archive"}}</a> | <a id="cuk" href="#" data-lm='{{index .Locales "light_mode"}}' data-dm='{{index .Locales "dark_mode"}}'>{{index .Locales "light_mode"}}</a>
   </p>
-  <h2>{{.Post.Meta.Title}}</h2>
+  <h2>{{.Post.Title}}</h2>
   <cite>{{.Post.Subtitle}}</cite>
   <br>
-  <code>{{.Post.Meta.Date}}</code>
+  <code>{{.Post.Date}}</code>
   <br/>
   {{.Post.Content}}
   <p>
     {{if .Post.Prev}}
-    <a href="{{.Post.Prev.Meta.Permalink}}">{{.Post.Prev.Meta.Title}}</a>
+    <a href="{{.Post.Prev.Permalink}}">{{.Post.Prev.Title}}</a>
     {{end}}
   </p>
   

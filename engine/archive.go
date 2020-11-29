@@ -10,41 +10,40 @@ import (
 
 type archivePageData struct {
 	*config.YML
-	Posts []PostMeta
+	Posts []Post
 	// Post an always null hack that helps with the header template if condition
-	Post *PostMeta
+	Post *Post
 }
 
 // SpewArchive generate site posts archive
-func SpewArchive(meta []*PostMeta, templates *Templates) error {
-	fmt.Print("| Generating archive ...\n")
+func SpewArchive(posts []*Post, templates *Templates) error {
+	fmt.Println("| Generating archive ...")
 
-	var f *os.File
 	f, err := os.Create(filepath.Join(config.TempPath, "archive.html"))
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	metas := make([]PostMeta, 0)
-	for _, p := range meta {
+	published := make([]Post, 0)
+	for _, p := range posts {
 		if p.IsPublish {
-			metas = append(metas, *p)
+			published = append(published, *p)
 		}
 	}
 
-	pd := &archivePageData{config.YMLConfig, metas, nil}
+	apd := &archivePageData{config.YMLConfig, published, nil}
 
 	// header
-	if err = templates.Header.Execute(f, pd); err != nil {
+	if err = templates.Header.Execute(f, apd); err != nil {
 		return err
 	}
 	// body
-	if err = templates.Archive.Execute(f, pd); err != nil {
+	if err = templates.Archive.Execute(f, apd); err != nil {
 		return err
 	}
 	// footer
-	if err = templates.Footer.Execute(f, pd); err != nil {
+	if err = templates.Footer.Execute(f, apd); err != nil {
 		return err
 	}
 
