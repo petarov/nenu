@@ -53,15 +53,23 @@ func Spew() (err error) {
 	templates := loadTemplates()
 
 	// generate posts
-	meta, err := SpewPosts(templates)
+	posts, err := SpewPosts(templates)
 	if err != nil {
 		return err
 	}
 
 	// generate archive
-	err = SpewArchive(meta, templates)
+	err = SpewArchive(posts, templates)
 	if err != nil {
 		return err
+	}
+
+	// generate RSS feed
+	if config.YMLConfig.Content.Rss {
+		err = SpewAtom(posts)
+		if err != nil {
+			return err
+		}
 	}
 
 	// copy all generated content to the specified destination

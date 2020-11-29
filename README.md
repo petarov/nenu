@@ -9,7 +9,7 @@ nenu
 
 # Installation
 
-TODO
+[Download binaries](https://github.com/petarov/nenu/releases) for Linux, macOS or Windows.
 
 # Usage
 

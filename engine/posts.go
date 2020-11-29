@@ -37,6 +37,7 @@ type Post struct {
 	ShortDate    string
 	Content      template.HTML
 	Permalink    template.URL
+	PermalinkURL string
 	ImageURL     string
 	IsPublish    bool
 	IsIndex      bool
@@ -177,8 +178,9 @@ func SpewPosts(templates *Templates) ([]*Post, error) {
 			}
 
 			post.IsIndex = false
-			post.Permalink = template.URL(fmt.Sprintf("%s/%s/%s", config.YMLConfig.Site.URL, post.filepath,
-				post.filenameHTML))
+			post.PermalinkURL = fmt.Sprintf("%s/%s/%s", config.YMLConfig.Site.URL, post.filepath,
+				post.filenameHTML)
+			post.Permalink = template.URL(post.Permalink)
 			post.Title = strings.ReplaceAll(filenameClean, "-", " ")
 
 			posts = append(posts, post)

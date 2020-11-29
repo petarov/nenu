@@ -15,6 +15,7 @@ type YML struct {
 		Title       string `yaml:"title"`
 		Description string `yaml:"description"`
 		URL         string `yaml:"url"`
+		Author      string `yaml:"author"`
 	}
 	Content struct {
 		FontLink string `yaml:"font_link"`

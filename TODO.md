@@ -6,8 +6,8 @@
   - [x] Load templates and generate index, archives, posts pages
   - [x] Use temporary folder to place new contents and copy after all is done
   - [x] Add HTML templates localization
-  - [ ] Add RSS generation
+  - [x] Add RSS generation
   - [ ] Add basic unit tests (smoke testing to verify content generation works)
-  - [ ] Add proper support for images in markdown
-  - [ ] Use co-routines for faster content generation
-  - [ ] Do not rebuild articles that have not changed since last build (use checksums or so)
+  - [ ] Add proper support for images in markdown posts
+  - [ ] Use goroutines for faster content generation (posts, archive, rss)
+  - [ ] Do not rebuild articles that have not changed since last build (use posts checksums)
