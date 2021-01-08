@@ -1,11 +1,13 @@
 name: CI Build
 
-on:
+on: 
+  workflow_dispatch:
   push:
     branches:
       - "master"
     paths:
         - "**.go"
+  
 
 jobs:
   build:
