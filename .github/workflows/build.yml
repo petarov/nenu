@@ -49,7 +49,7 @@ jobs:
           GOOS=windows GOARCH=386 go build -o nenu_windows_386.exe
 
       - name: Prepare release
-        run: zip nenu-bin.zip nenu_* config.yml.tpl LICENSE templates/
+        run: zip -r nenu-bin.zip nenu_* config.yml.tpl LICENSE templates/
       
       - name: Upload release
         uses: "marvinpinto/action-automatic-releases@latest"
