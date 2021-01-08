@@ -1,8 +1,8 @@
 nenu
 ===================
 
-![build](https://github.com/petarov/nenu/workflows/CI%20Build/badge.svg)
-![goreport](https://goreportcard.com/badge/github.com/petarov/nenu)
+[![build](https://github.com/petarov/nenu/workflows/CI%20Build/badge.svg)](https://github.com/petarov/nenu/actions?query=workflow%3A%22CI+Build%22)
+[![goreport](https://goreportcard.com/badge/github.com/petarov/nenu)](https://goreportcard.com/report/github.com/petarov/nenu)
 
 `пепи` - A tiny static site generator for your journal.
 
