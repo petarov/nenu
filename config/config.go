@@ -13,9 +13,9 @@ import (
 type YML struct {
 	Site struct {
 		Title       string `yaml:"title"`
-		Description string `yaml:"description"`
+		Description string `yaml:"description,omitempty"`
 		URL         string `yaml:"url"`
-		Author      string `yaml:"author"`
+		Author      string `yaml:"author,omitempty"`
 	}
 	Content struct {
 		FontLink string `yaml:"font_link"`
@@ -29,7 +29,7 @@ type YML struct {
 		CopyrightHTML template.HTML
 		Twitter       string `yaml:"twitter"`
 		ShowBuilder   bool   `yaml:"show_builder"`
-	}
+	} `yaml:",omitempty,inline,alias"`
 	Locales map[string]string
 }
 
