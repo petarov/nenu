@@ -1,6 +1,9 @@
 nenu
 ===================
 
+![build](https://github.com/petarov/nenu/workflows/CI%20Build/badge.svg)
+![goreport](https://goreportcard.com/badge/github.com/petarov/nenu)
+
 `пепи` - A tiny static site generator for your journal.
 
   * Binary executable without additional dependencies
