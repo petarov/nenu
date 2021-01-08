@@ -58,18 +58,31 @@ func Spew() (err error) {
 		return err
 	}
 
+	doneArch := make(chan error)
+	doneRss := make(chan error)
+
 	// generate archive
-	err = SpewArchive(posts, templates)
-	if err != nil {
-		return err
-	}
+	go func() {
+		doneArch <- SpewArchive(posts, templates)
+	}()
 
 	// generate RSS feed
-	if config.YMLConfig.Content.Rss {
-		err = SpewAtom(posts)
-		if err != nil {
-			return err
+	go func() {
+		if config.YMLConfig.Content.Rss {
+			doneRss <- SpewAtom(posts)
+		} else {
+			doneRss <- nil
 		}
+	}()
+
+	errArch := <-doneArch
+	if errArch != nil {
+		return errArch
+	}
+
+	errRss := <-doneRss
+	if errRss != nil {
+		return errRss
 	}
 
 	// copy all generated content to the specified destination
