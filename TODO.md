@@ -1,4 +1,4 @@
-## Plan
+## ToDo
 
   - [x] Add loading and validation of `config.yml`
   - [x] Add loading of markdown posts

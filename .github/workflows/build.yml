@@ -7,7 +7,8 @@ on:
       - "master"
     paths:
         - "**.go"
-  
+        - ".github/workflows/**"
+
 
 jobs:
   build:
@@ -28,6 +29,7 @@ jobs:
         run: |
           go version
           go get -v -d ./...
+
       - name: Cache modules
         uses: actions/cache@v2
         with:
@@ -45,14 +47,15 @@ jobs:
           GOOS=linux GOARCH=arm64 go build -o nenu_linux_arm64
           GOOS=darwin GOARCH=amd64 go build -o nenu_darwin_amd64
           GOOS=windows GOARCH=386 go build -o nenu_windows_386.exe
-      - uses: "marvinpinto/action-automatic-releases@latest"
+
+      - name: Prepare release
+        run: zip nenu-bin.zip nenu_* config.yml.tpl LICENSE templates/
+      
+      - name: Upload release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: false
           title: "Latest Build"
-          files: |
-            LICENSE
-            nenu_*
-            config.yml.tpl
-            templates/
+          files: nenu-bin.zip
