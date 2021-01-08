@@ -38,11 +38,11 @@ jobs:
 
       - name: Build binaries
         run: |
-          GOOS=linux GOARCH=amd64 go build -o apnscmd_linux_amd64
-          GOOS=linux GOARCH=386 go build -o apnscmd_linux_386
-          GOOS=linux GOARCH=arm64 go build -o apnscmd_linux_arm64
-          GOOS=darwin GOARCH=amd64 go build -o apnscmd_darwin_amd64
-          GOOS=windows GOARCH=386 go build -o apnscmd_windows_386.exe
+          GOOS=linux GOARCH=amd64 go build -o nenu_linux_amd64
+          GOOS=linux GOARCH=386 go build -o nenu_linux_386
+          GOOS=linux GOARCH=arm64 go build -o nenu_linux_arm64
+          GOOS=darwin GOARCH=amd64 go build -o nenu_darwin_amd64
+          GOOS=windows GOARCH=386 go build -o nenu_windows_386.exe
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -53,4 +53,4 @@ jobs:
             LICENSE
             nenu_*
             config.yml.tpl
-            templates/*
+            templates/
