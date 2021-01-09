@@ -17,7 +17,7 @@
       el.innerText = el.dataset.dm;
     }
     var link = document.getElementById("theme-css");
-    link.href = 'styles/sakura-' + mode + '.css';
+    link.href = el.dataset.url + '/styles/sakura-' + mode + '.css';
     ss('mode', mode);
   };
   var bumper = document.getElementById("cuk");

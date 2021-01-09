@@ -2,11 +2,11 @@
     {{if .Footer.Twitter}}
     <a href="https://twitter.com/{{.Footer.Twitter}}">@{{.Footer.Twitter}}</a> |
     {{end}}
-    <a href="feed-atom.xml">atom</a> |  {{.Footer.CopyrightHTML}}
+    <a href="{{.Site.URL}}/feed-atom.xml">atom</a> |  {{.Footer.CopyrightHTML}}
     {{if .Footer.ShowBuilder}}
     | <span class="gen">{{index .Locales "gen_by"}}</span> <a href="https://github.com/petarov/nenu" class="gen">пепи</a>
     {{end}}
 </footer>
-<script defer src="js/blazer.js"></script>
+<script defer src="{{.Site.URL}}/js/blazer.js"></script>
 </body>
 </html>
