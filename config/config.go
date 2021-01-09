@@ -29,7 +29,7 @@ type YML struct {
 		CopyrightHTML template.HTML
 		Twitter       string `yaml:"twitter"`
 		ShowBuilder   bool   `yaml:"show_builder"`
-	} `yaml:",omitempty,inline,alias"`
+	} `yaml:",omitempty,alias"`
 	Locales map[string]string
 }
 
