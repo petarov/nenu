@@ -9,6 +9,8 @@ nenu
   * Binary executable without additional dependencies
   * Drop-in replacement for Jekyll markdown posts
   * Easy to use YAML config file
+  
+[Demo](http://petarov.github.io/nenu/)
 
 # Installation
 
