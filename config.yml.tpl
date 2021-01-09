@@ -1,7 +1,7 @@
 site:
-    title: ""
-    description: ""
     url: https://my.site.tld
+    title: "My Site"
+    description: ""
     author: ""
 
 content:
@@ -13,5 +13,5 @@ content:
 
 footer:
     copyright: ""
-    twitter: 
+    twitter: ""
     show_builder: true

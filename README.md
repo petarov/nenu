@@ -8,7 +8,7 @@ nenu
 
   * Binary executable without additional dependencies
   * Drop-in replacement for Jekyll markdown posts
-  * Easy to use YML config file
+  * Easy to use YAML config file
 
 # Installation
 
@@ -26,7 +26,7 @@ Generate web site contents into an output folder called `_site` using the markdo
 
     nenu_linux_amd64 -p _posts -o _site
 
-Specifies another template to use:
+Specify another template to use:
 
     nenu_linux_amd64 -p _posts -o _site -t templates/my-custom-template
 
