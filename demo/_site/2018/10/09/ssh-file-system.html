@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        
+        <title>Random Dev Articles - SSH File System</title>
+        <meta name="description" content="">
+        
+        <meta property="og:title" content="SSH File System"/>
+        <meta property="og:description" content=""/>
+        <meta property="og:url" content="https://petarov.github.io/nenu/2018/10/09/ssh-file-system.html"/>
+        <meta property="og:image" content="" />
+    
+    <meta property="og:site_name" content="Random Dev Articles"/>
+    <meta property="og:type" content="website"/>
+    <meta name="description" content="A demo blog built by nenu"/>
+    <link href="https://fonts.googleapis.com/css?family=Oxygen:300&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/sakura-blazer.css" id="theme-css">
+    <link rel="stylesheet" href="styles/blazer.css">
+    <style media="screen">
+    html {
+        font-size: 62.5%;
+        font-family: 'Oxygen', serif; 
+    }
+    </style>
+</head>
+<body>  <h1>Random Dev Articles</h1>
+  <p>
+    <a href="index.html">latest</a> | <a href="archive.html">archive</a> | <a id="cuk" href="#" data-lm='lights on' data-dm='lights off'>lights on</a>
+  </p>
+  <h2>SSH File System</h2>
+  
+  <cite>Share, copy, deploy stuff to a remote folder over ssh.</cite>
+  <br>
+  
+  <code>Tuesday, 09 October 2018</code>
+  <br/>
+  <blockquote>
+<p>Dig deep!</p>
+
+<p><a href="https://xkcd.com/1360"><img src="https://imgs.xkcd.com/comics/old_files.png" alt="XKCD Documents" /></a></p>
+</blockquote>
+
+<p>Get this article read to you.</p>
+
+<h1 id="contents">Contents</h1>
+
+<ul>
+<li><a href="#goal">Goal</a></li>
+<li><a href="#sshfs">The SSH File System</a></li>
+<li><a href="#user-access">User Access Workflow</a></li>
+<li><a href="#setup">Setup</a>
+
+<ul>
+<li><a href="#setup-debian">Debian Linux</a></li>
+<li><a href="#setup-macos">macOS</a></li>
+</ul></li>
+</ul>
+
+<h1 id="a-name-goal-a-goal"><a name="goal"></a>Goal</h1>
+
+<p>A couple of weeks ago I found myself setting up an e-books server that was supposed to store my ever growing <em>&ldquo;Books I&rsquo;d like to but I&rsquo;ll rarely find the time to read&rdquo;</em> collection. That imposed an interesting network problem I had to solve. I had a large external drive connected to another machine that I wanted to utilize, however, setting up a Samba server wasn&rsquo;t something I wanted to spend several cups of coffee on and NFS wasn&rsquo;t an option for me either. It occurred to me that I should be able to achieve my goal using SSH.</p>
+
+<h1 id="a-name-sshfs-a-the-ssh-file-system"><a name="sshfs"></a>The SSH File System</h1>
+
+<p>First, I must say, I just love this idea. Using SSH as means to provide seamless file I/O operations and access control via asymmetric crypto is something I&rsquo;ll always consider from now on. The tool behind this is <a href="https://github.com/libfuse/sshfs">sshfs</a>. It&rsquo;s being frequently <a href="https://github.com/libfuse/sshfs/blob/master/ChangeLog.rst">updated</a> and one may be sure to find it in their package manager.</p>
+
+<p>However, there are a couple of things to consider.</p>
+
+<ol>
+<li>It&rsquo;s expected that SSH transfers will be slower due to crypto (and of course network) operations, although <strong>sshfs</strong> does use <a href="https://github.com/libfuse/sshfs/blob/master/cache.c">caching</a> and multi-threading to address this. In any case, this does not seem to be an issue for me in a local network over a wired ethernet connection.</li>
+<li><strong>sshfs</strong> leads to some very interesting user management cases, but this may quickly get too complex to handle. I&rsquo;d say that using this within a complex access permissions scenario could be painful.</li>
+</ol>
+
+<h1 id="a-name-user-access-a-user-access-workflow"><a name="user-access"></a>User Access Workflow</h1>
+
+<p>Here&rsquo;s a simplified workflow on what happens behind the scenes.</p>
+
+<p><a href="http://i.imgur.com/7YPQPBA.png"><img src="http://i.imgur.com/7YPQPBA.png" alt="SSHFS User Access" /></a></p>
+
+<ul>
+<li><strong>alice</strong> on <strong>Server A</strong> needs to access <strong>Server B</strong>&rsquo;s storage.</li>
+<li><strong>bob</strong> has full access to <strong>Server B</strong>&rsquo;s storage.</li>
+<li><strong>alice</strong> generates an ssh key pair and uses that to establish an SSH connection and impersonate <em>Bob</em> on <strong>Server B</strong>.</li>
+<li><strong>alice</strong> creates a mount point on <strong>Server A</strong> and can induce file read/write operations on Storage via the established SSH channel.</li>
+</ul>
+
+<h1 id="a-name-setup-a-setup"><a name="setup"></a>Setup</h1>
+
+<p>I have prepared two setup use cases - one based on Linux that I&rsquo;m currently using and another one for macOS, which I mostly did for research purposes. It is most certainly possible to use <strong>sshfs</strong> on <strong>Windows</strong>, however, I have not done any setup research in that direction.</p>
+
+<h2 id="a-name-setup-debian-a-debian-linux"><a name="setup-debian"></a>Debian Linux</h2>
+
+<p>Install <strong>sshfs</strong> on <strong>Server A</strong> via aptitude:</p>
+
+<pre><code>sudo apt-get install sshfs
+</code></pre>
+
+<p>Install FUSE (Filesystem in Userspace) via aptitude:</p>
+
+<pre><code>sudo apt-get install fuse
+</code></pre>
+
+<p>You would need to load the <code>fuse</code> module via:</p>
+
+<pre><code>modprobe fuse
+</code></pre>
+
+<p>Check if the module is loaded via:</p>
+
+<pre><code>lsmod | grep fuse
+</code></pre>
+
+<p>Run <code>ssh-keygen</code> on <strong>Server A</strong> to generate a key pair.</p>
+
+<p>Copy the public key in <code>$HOME/.ssh/id_rsa.pub</code> from <strong>Server A</strong> and paste it to <code>$HOME/.ssh/authorized_keys</code> on <strong>Server B</strong>. Or just use <code>scp</code> to copy the file over.</p>
+
+<p>Create a target mount point and mount it to <strong>Server A</strong>, e.g.,</p>
+
+<pre><code>mkdir $HOME/mountpoint
+sshfs bob@server-b:/var/storage $HOME/mountpoint
+</code></pre>
+
+<p>You now have access to <strong>Server B</strong>&rsquo;s storage space. To unmount run:</p>
+
+<pre><code>fusermount -u $HOME/mountpoint
+</code></pre>
+
+<h3 id="a-name-setup-debian-a-mount-via-systemd-service"><a name="setup-debian"></a>Mount via systemd.service</h3>
+
+<p>It&rsquo;d be great to have this run as a service, so if <strong>Server A</strong> reboots, the mount point gets setup automatically. For systems using <strong>systemd</strong> we can do that the following way:</p>
+
+<p>Create a <code>mount</code> file in your <code>$HOME</code> (or any other accessible) directory.</p>
+
+<pre><code class="language-bash">#!/bin/sh
+
+
+CMD=&quot;$1&quot;
+MNT=&quot;/home/mountpoint&quot;
+TARGET=&quot;/var/storage/&quot;
+
+
+start() {
+  exec sshfs bob@server-b:$TARGET $MNT
+}
+
+
+stop() {
+  fusermount -u $MNT
+}
+
+
+case $1 in
+  start|stop) &quot;$1&quot; ;;
+esac
+</code></pre>
+
+<p>As a <code>root</code> user, create a <code>bob-mount.service</code> file in <code>/lib/systemd/system</code> and add the following inside:</p>
+
+<pre><code>[Unit]
+Description=Server B Mount Service
+After=network.target
+
+
+[Service]
+User=alice
+Group=alice
+Type=forking
+ExecStart=/home/alice/mount start
+ExecStop=/home/alice/mount stop
+
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>Start and stop the service via:</p>
+
+<pre><code>systemctl start bob-mount
+systemctl stop bob-mount
+</code></pre>
+
+<p>Enable the service to run at boot time:</p>
+
+<pre><code>systemctl enable bob-mount
+</code></pre>
+
+<h2 id="a-name-setup-macos-a-macos"><a name="setup-macos"></a>macOS</h2>
+
+<p>Installation on macOS is pretty similar. Use <strong>brew</strong> to install the following:</p>
+
+<pre><code>brew install Caskroom/cask/osxfuse
+brew install Caskroom/cask/sshfs
+</code></pre>
+
+<p>You should see <code>FUSE for macOS</code> in your <strong>System Preferences</strong> afterwards. To mount a share run:</p>
+
+<pre><code>mkdir $HOME/mountpoint
+sshfs bob@server-b:/var/storage $HOME/mountpoint
+</code></pre>
+
+<p>To unmount just run:</p>
+
+<pre><code>unmount $HOME/mountpoint
+</code></pre>
+
+<p>An easy way to mount after reboot is to create a mount script and put it in the <code>crontab</code>.</p>
+
+  <p>
+    
+  </p>
+  <footer>
+    
+    <a href="feed-atom.xml">atom</a> |  <a rel="license" href="https://github.com/petarov/nenu/blob/master/LICENSE">MIT License</a>
+    
+    | <span class="gen">gen. by</span> <a href="https://github.com/petarov/nenu" class="gen">пепи</a>
+    
+</footer>
+<script defer src="js/blazer.js"></script>
+</body>
+</html>

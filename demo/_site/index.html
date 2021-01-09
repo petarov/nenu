@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+        
+        <title>Random Dev Articles</title>
+        <meta name="description" content="A demo blog built by nenu">
+        
+        <meta property="og:title" content="Java and Native Code in OpenJDK 13"/>
+        <meta property="og:description" content=""/>
+        <meta property="og:url" content="https://petarov.github.io/nenu/2019/06/11/java-native-jdk13.html"/>
+        <meta property="og:image" content="" />
+    
+    <meta property="og:site_name" content="Random Dev Articles"/>
+    <meta property="og:type" content="website"/>
+    <meta name="description" content="A demo blog built by nenu"/>
+    <link href="https://fonts.googleapis.com/css?family=Oxygen:300&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/sakura-blazer.css" id="theme-css">
+    <link rel="stylesheet" href="styles/blazer.css">
+    <style media="screen">
+    html {
+        font-size: 62.5%;
+        font-family: 'Oxygen', serif; 
+    }
+    </style>
+</head>
+<body>  <h1>Random Dev Articles</h1>
+  <p>
+    <a href="index.html">latest</a> | <a href="archive.html">archive</a> | <a id="cuk" href="#" data-lm='lights on' data-dm='lights off'>lights on</a>
+  </p>
+  <h2>Java and Native Code in OpenJDK 13</h2>
+  
+  <code>Tuesday, 11 June 2019</code>
+  <br/>
+  <h1 id="contents">Contents</h1>
+
+<ul>
+<li><a href="#intro">Intro</a></li>
+<li><a href="#hands-on">Hands-on</a>
+
+<ul>
+<li><a href="#libcurl">The libCurl App</a></li>
+<li><a href="#libssh">The libSSH2 App</a></li>
+</ul></li>
+<li><a href="#outro">Final Thoughts</a></li>
+<li><a href="#refs">References</a></li>
+</ul>
+
+<h1 id="a-name-intro-a-intro"><a name="intro"></a>Intro</h1>
+
+<p>Last week I watched a pretty cool GOTO Conference talk <a href="#refs">[1]</a> with Mikael Vidstedt, director of Software Engineering at Oracle, where he presents many of the upcoming and currently being worked on Java features. One of those, <strong>Project Panama</strong>, stood out as particularly interesting to me.</p>
+
+<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr"><a href="https://twitter.com/hashtag/Java?src=hash&amp;ref_src=twsrc%5Etfw">#Java</a> has changed more in the last year than in the previous five years.<br><br>Learn about these changes and what Java&amp;#39;s future holds in this <a href="https://twitter.com/hashtag/GOTOchgo?src=hash&amp;ref_src=twsrc%5Etfw">#GOTOchgo</a> talk with <a href="https://twitter.com/gsaab?ref_src=twsrc%5Etfw">@gsaab</a> and <a href="https://twitter.com/MikaelVidstedt?ref_src=twsrc%5Etfw">@MikaelVidstedt</a><a href="https://t.co/QcX8MnEQZL">https://t.co/QcX8MnEQZL</a></p>&amp;mdash; GOTO (@GOTOcon) <a href="https://twitter.com/GOTOcon/status/1136248991254028289?ref_src=twsrc%5Etfw">June 5, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+
+<p><em>Disclaimer: Project Panama is still in its early stages of development, so the contents of this article may not reflect its current state.</em></p>
+
+<p>Project Panama, available in early-access JDK 13 builds, is meant as a bridge between Java and native code. How is this useful? There are certain use cases where a piece of functionality is available as a library written in C or C++ and the requirement is to integrate it into a Java application. The current solution is to use the Java Native Interface (JNI) <a href="#refs">[2]</a> which could require a vast amount of work and is also quite error-prone. You need to have a good grasp of the native library&rsquo;s insides and then write all the required implementations to bridge the Java interface with the native code. From my experience, calling native library functions that may change at some later point in time and also managing heap memory allocations could be a real challenge with JNI. To quote Mikael as he says it on the video:</p>
+
+<blockquote>
+<p>How many people here have written JNI or, you know, done JNI? We&rsquo;re so sorry for you!</p>
+</blockquote>
+
+<p>This is where Panama comes into play. It provides new tools and API to simplify the bridging between Java and native code. It basically boils down to the following steps:</p>
+
+<ol>
+<li>Generate Java bindings (interfaces) from existing C header file(s) using the <strong>jextract</strong> tool.</li>
+<li>Invoke C functions via the extracted Java interface using the <strong>java.foreign</strong> API.</li>
+</ol>
+
+<p>This allows you to concentrate on writing the core logic of your application, rather than fiddling with glue code and integration details.</p>
+
+<h1 id="a-name-hands-on-a-hands-on"><a name="hands-on"></a>Hands-on</h1>
+
+<p>Project Panama&rsquo;s documentation pages <a href="#refs">[3]</a> already provide a solid number of examples to start with. I&rsquo;ll just take a quick peek at how to bridge and run a <em>libCurl</em> Java app and then I&rsquo;d like to present a more detailed example - a simple SSH client that I wrote based on <em>libSSH2</em>.</p>
+
+<p>I&rsquo;m running these examples on a macOS, but with a few tweaks you should also be able to run them on a Linux installation.</p>
+
+<h2 id="a-name-libcurl-a-the-libcurl-app"><a name="libcurl"></a>The libCurl App</h2>
+
+<p>How to download a web page using the native Curl library&rsquo;s implementation? Well, first we need to get and extract a Panama <a href="http://jdk.java.net/panama/">OpenJDK build</a> archive.</p>
+
+<p>Let&rsquo;s open up a shell and set the <code>JAVA_HOME</code> environment variable to where the OpenJDK build archive is extracted.</p>
+
+<pre><code class="language-bash">export JAVA_HOME=/opt/jdk-13.jdk
+</code></pre>
+
+<p>Now we need to generate the Java interfaces, the glue code that will bind Java code to the native library. This will produce a <code>curl.jar</code> file:</p>
+
+<pre><code class="language-bash">$JAVA_HOME/bin/jextract -t org.unix -L /usr/lib -lcurl \
+  --record-library-path /usr/include/curl/curl.h \
+  -o curl.jar
+</code></pre>
+
+<p>When we inspect the JAR file, we can see all the Curl API calls, as well as dependency bindings. The Curl API is available through the new <strong>java.foreign</strong> Java API.</p>
+
+<p><img src="https://thepracticaldev.s3.amazonaws.com/i/5j56upyw7yz643tiwefx.png" alt="curl.jar" /></p>
+
+<p>Now for a quick example. Here&rsquo;s a Java piece of code that fetches a web page and displays its contents on screen.</p>
+
+<pre><code class="language-java">import java.lang.invoke.*;
+import java.foreign.*;
+import java.foreign.memory.*;
+import org.unix.curl.*;
+import org.unix.curl_h;
+import static org.unix.curl_h.*;
+import static org.unix.easy_h.*;
+
+
+public class Main {
+   public static void main(String[] args) {
+       try (Scope s = curl_h.scope().fork()) { 
+           curl_global_init(CURL_GLOBAL_DEFAULT);
+           Pointer&lt;Void&gt; curl = curl_easy_init();
+           if(!curl.isNull()) {
+               Pointer&lt;Byte&gt; url = s.allocateCString(args[0]);
+               curl_easy_setopt(curl, CURLOPT_URL, url);
+               int res = curl_easy_perform(curl);
+               if (res != CURLE_OK) {
+                 System.err.println(&quot;Error fetching from: &quot; + args[0] + &quot; ERR: &quot; + Pointer.toString(curl_easy_strerror(res)));
+                 curl_easy_cleanup(curl);
+               }
+           }
+           curl_global_cleanup();
+       }
+    }
+}
+</code></pre>
+
+<p>A couple of things to point out here. Notice how we cannot directly pass a Java <code>String</code> to the <code>curl_easy_setopt()</code> call. This call accepts a memory address pointer as the <code>url</code> parameter, so we first need to do a dynamic memory allocation operation using the <code>Scope</code> and pass a <code>Pointer</code> interface instance instead. As you may find in the Panama tech docs <a href="#refs">[5]</a>, the <code>Pointer</code> interface helps a lot when it comes to complex C-alike pointer operations like pointer arithmetic, casts, memory dereference, etc. The <code>Scope</code> manages the runtime life-cycle of dynamic allocated memory.</p>
+
+<p>Alright, now armed with this knowledge, can you extend this code to write the contents of a Curl fetched web page to a file stream?</p>
+
+<h2 id="a-name-libssh-a-the-libssh2-app"><a name="libssh"></a>The libSSH2 App</h2>
+
+<p>Here&rsquo;s a more complete example application that utilizes <em>libSSH2</em> <a href="#refs">[4]</a> to implement a simple SSH client.</p>
+
+<p><div class="github-card" data-github="petarov/java-panama-ssh2" data-width="400" data-height="177" data-theme="default"></div>
+<script src="//cdn.jsdelivr.net/github-cards/latest/widget.js"></script></p>
+
+<p>If you&rsquo;d like to have a go and adjust it to run on Windows, I&rsquo;ll greatly appreciate a PR.</p>
+
+<h1 id="a-name-outro-a-final-thoughts"><a name="outro"></a>Final Thoughts</h1>
+
+<p>A few points from my side that I learned or have been thinking about while working with Panama.</p>
+
+<ul>
+<li>The <code>Scope</code> is pretty powerful. You can allocate callback pointers, structs, arrays. The concept of layouts and layout types deserves more time for me to fully explore and grasp.</li>
+<li>It comes as no surprise that writing Java code using a native library is more extensive and requires extra care, especially when it comes to not forgetting to invoke cleanup API calls that the library requires.</li>
+<li>I/O in most native libraries requires a file descriptor, which isn&rsquo;t easy to get in Java <a href="#refs">[6]</a>. This, however, is not directly related to the <strong>java.foreign</strong> API.</li>
+<li>Some libraries define C++ style function prototypes without argument as opposed to C-style <code>Void</code> argument types. The Foreign Docs <a href="#refs">[3]</a> have an example about this case when using the TensorFlow C API.</li>
+<li>I haven&rsquo;t explored if it would be possible to use Panama with Go or Rust created native libraries. That would be pretty cool.</li>
+</ul>
+
+<p>Thanks for reading!🍻</p>
+
+<h1 id="a-name-refs-a-references"><a name="refs"></a>References</h1>
+
+<ol>
+<li><a href="https://www.youtube.com/watch?v=vJrHHe3IbQs&amp;t=2172">GOTO 2019 • Project Panama part</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Java_Native_Interface">Java Native Interface</a></li>
+<li><a href="https://hg.openjdk.java.net/panama/dev/raw-file/4810a7de75cb/doc/panama_foreign.html">Panama Foreign Docs</a></li>
+<li><a href="https://www.libssh2.org">libSSH2</a> - a client-side C library implementing the SSH2 protocol</li>
+<li><a href="https://cr.openjdk.java.net/~mcimadamore/panama/panama-binder-v3.html">Panama Binder Docs v3</a></li>
+<li><a href="https://stackoverflow.com/q/11455803/10364676">Most efficient way to pass Java socket file descriptor to C binary file</a></li>
+</ol>
+
+  <p>
+    
+    <a href="https://petarov.github.io/nenu/2019/03/16/help-me-delete-your-tweets.html">Help Me Delete Your Tweets!</a>
+    
+  </p>
+  <footer>
+    
+    <a href="feed-atom.xml">atom</a> |  <a rel="license" href="https://github.com/petarov/nenu/blob/master/LICENSE">MIT License</a>
+    
+    | <span class="gen">gen. by</span> <a href="https://github.com/petarov/nenu" class="gen">пепи</a>
+    
+</footer>
+<script defer src="js/blazer.js"></script>
+</body>
+</html>
