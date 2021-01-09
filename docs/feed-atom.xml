@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">
   <title>Random Dev Articles</title>
   <id>https://petarov.github.io/nenu</id>
-  <updated>2021-01-09T13:46:19+01:00</updated>
+  <updated>2021-01-09T13:55:37+01:00</updated>
   <rights>&lt;a rel=&#34;license&#34; href=&#34;https://github.com/petarov/nenu/blob/master/LICENSE&#34;&gt;MIT License&lt;/a&gt;</rights>
   <subtitle>A demo blog built by nenu</subtitle>
   <link href="https://petarov.github.io/nenu"></link>
