@@ -22,13 +22,13 @@ Make sure the `url`, `title` and `description` are specified.
 
 # Usage
 
-Generate web site contents into an output folder called `_site` using the markdown files from `_posts`. By default, the website uses the  `blazer` template:
+Generate web site contents into an output folder called `_site` using the markdown files from `_posts`. By default, the website uses the  `blazer` theme:
 
     nenu_linux_amd64 -p _posts -o _site
 
-Specify another template to use:
+Specify another theme to use:
 
-    nenu_linux_amd64 -p _posts -o _site -t templates/my-custom-template
+    nenu_linux_amd64 -p _posts -o _site -t themes/my-custom-theme
 
 # Development
 

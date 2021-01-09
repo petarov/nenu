@@ -21,7 +21,7 @@ var (
 
 func init() {
 	flag.StringVar(&config.ConfigPath, "c", "config.yml", "Path to YAML configuration file")
-	flag.StringVar(&config.TemplatePath, "t", "templates/blazer", "Path to HTML template to use")
+	flag.StringVar(&config.ThemePath, "t", "themes/blazer", "Path to HTML theme to use")
 	flag.StringVar(&config.PostsPath, "p", "", "Path to a directory with markdown (.md) posts")
 	flag.StringVar(&config.OutputPath, "o", "", "Path to where to write the generated HTML website files")
 	flag.StringVar(&config.TempPath, "tmp", os.TempDir(), "Temporary path used during content generation")
@@ -49,7 +49,7 @@ func main() {
 	flag.Parse()
 
 	verifyPath(config.ConfigPath, "Config", true)
-	verifyPath(config.TemplatePath, "Templates", true)
+	verifyPath(config.ThemePath, "Themes", true)
 	verifyPath(config.PostsPath, "Blog posts", true)
 	verifyPath(config.OutputPath, "Output path", false)
 

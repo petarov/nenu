@@ -29,10 +29,10 @@ type Templates struct {
 
 func loadTemplates() *Templates {
 	templates := new(Templates)
-	templates.Header = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "header.html")))
-	templates.Footer = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "footer.html")))
-	templates.Post = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "post.html")))
-	templates.Archive = template.Must(template.ParseFiles(filepath.Join(config.TemplatePath, "archive.html")))
+	templates.Header = template.Must(template.ParseFiles(filepath.Join(config.ThemePath, "header.html")))
+	templates.Footer = template.Must(template.ParseFiles(filepath.Join(config.ThemePath, "footer.html")))
+	templates.Post = template.Must(template.ParseFiles(filepath.Join(config.ThemePath, "post.html")))
+	templates.Archive = template.Must(template.ParseFiles(filepath.Join(config.ThemePath, "archive.html")))
 	return templates
 }
 
@@ -97,7 +97,7 @@ func Spew() (err error) {
 	}
 
 	// copy web template resources
-	err = copy.Copy(config.TemplatePath, config.OutputPath, copy.Options{
+	err = copy.Copy(config.ThemePath, config.OutputPath, copy.Options{
 		Skip: func(src string) (bool, error) {
 			for _, v := range templateNames {
 				if strings.HasSuffix(src, v) {

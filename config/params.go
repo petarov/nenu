@@ -7,8 +7,8 @@ import (
 var (
 	// ConfigPath config.yml file path
 	ConfigPath string
-	// TemplatePath path to web template to use for the blog
-	TemplatePath string
+	// ThemePath path to web template to use for the blog
+	ThemePath string
 	// PostsPath path to markdown (.md) posts
 	PostsPath string
 	// OutputPath path to where the site contents will be written
