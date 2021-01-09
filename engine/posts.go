@@ -96,8 +96,9 @@ func writePost(post *Post, data []byte, templates *Templates) (err error) {
 			if !parsing {
 				if len(line) > 0 {
 					lines = append(lines, line)
-				} else {
 					lines = append(lines, "\n")
+				} else {
+					lines = append(lines, "\n\n")
 				}
 			}
 		}
