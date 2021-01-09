@@ -32,6 +32,15 @@ Specify another theme to use:
 
     nenu_linux_amd64 -p _posts -o _site -t themes/my-custom-theme
 
+## Markdown post meta params
+
+  * `title: <value>` - Post title
+  * `subtitle: <value>` - Post subtitle. Optional.
+  * `summary: <value>` - Post meta description. Optional.
+  * `publish: <true|false>` - Default `true`. Set to `false` to skip generating this post. Optional.
+
+See examples in [test-data](test-data).
+
 # Development
 
 пепи is a tool that should remain as small as possible. Adding new features is nice, but not really the goal of the project.
