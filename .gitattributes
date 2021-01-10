@@ -1,6 +1,6 @@
 themes/blazer/styles/sakura-*.css linguist-vendored
 test-data/* linguist-vendored
-demo/* linguist-vendored
+docs/* linguist-vendored
 .vscode/* linguist-vendored
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
