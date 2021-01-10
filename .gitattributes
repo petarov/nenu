@@ -1,4 +1,4 @@
-web/blazer/styles/sakura-*.css linguist-vendored
+themes/blazer/styles/sakura-*.css linguist-vendored
 test-data/* linguist-vendored
 demo/* linguist-vendored
 .vscode/* linguist-vendored
