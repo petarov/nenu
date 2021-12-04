@@ -7,4 +7,4 @@ const AppNameEN = "nenu"
 const AppNameBG = "пепи"
 
 // VERSION current version
-const VERSION = "0.9"
+const VERSION = "0.10"
