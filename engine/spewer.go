@@ -3,7 +3,6 @@ package engine
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,7 +37,7 @@ func loadTemplates() *Templates {
 
 // Spew generates website
 func Spew() (err error) {
-	tempDir, err := ioutil.TempDir(config.TempPath, "nenu-gen-")
+	tempDir, err := os.MkdirTemp(config.TempPath, "nenu-gen-")
 	if err != nil {
 		return
 	}

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -151,7 +150,7 @@ func SpewPosts(templates *Templates) ([]*Post, error) {
 	path := config.PostsPath
 	fmt.Printf("| Indexing posts from %s...\n", path)
 
-	files, err := ioutil.ReadDir(path)
+	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +201,7 @@ func SpewPosts(templates *Templates) ([]*Post, error) {
 
 		post.Prev = prev
 
-		data, err := ioutil.ReadFile(filepath.Join(path, post.filename))
+		data, err := os.ReadFile(filepath.Join(path, post.filename))
 		if err != nil {
 			return nil, err
 		}
@@ -223,7 +222,7 @@ func SpewPosts(templates *Templates) ([]*Post, error) {
 	index.filepath = ""
 	index.IsIndex = true
 
-	data, err := ioutil.ReadFile(filepath.Join(path, index.filename))
+	data, err := os.ReadFile(filepath.Join(path, index.filename))
 	if err != nil {
 		return nil, err
 	}

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"net/url"
+	"os"
 
 	"github.com/goccy/go-yaml"
 )
@@ -53,7 +53,7 @@ func validate(yml *YML) (err error) {
 func ParseYMLConfig(filepath string) (*YML, error) {
 	fmt.Printf("Parsing config file %s\n", filepath)
 
-	data, err := ioutil.ReadFile(filepath)
+	data, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, err
 	}
