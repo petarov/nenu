@@ -42,10 +42,10 @@ jobs:
 
       - name: Build binaries
         run: |
-          GOOS=linux GOARCH=amd64 go build LDLFAGS="-s" -o nenu_linux_amd64
-          GOOS=linux GOARCH=arm64 go build LDLFAGS="-s" -o nenu_linux_arm64
-          GOOS=darwin GOARCH=amd64 go build LDLFAGS="-s" -o nenu_darwin_amd64
-          GOOS=windows GOARCH=amd64 go build LDLFAGS="-s" -o nenu_windows_amd64.exe
+          GOOS=linux GOARCH=amd64 go build -ldflags "-s" -o nenu_linux_amd64
+          GOOS=linux GOARCH=arm64 go build -ldflags "-s" -o nenu_linux_arm64
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-s" -o nenu_darwin_amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "-s" -o nenu_windows_amd64.exe
 
       - name: Prepare release
         run: zip -r nenu-bin.zip nenu_* config.yml.tpl LICENSE themes/
